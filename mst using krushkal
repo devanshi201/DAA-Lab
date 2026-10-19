@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+
+
+void kruskalMST(int **cost, int V) {
+
+
+  int parent[V];
+    // Initialize each vertex as its own parent set
+    for (int i = 0; i < V; i++) {
+        parent[i] = i;
+    }
+
+    int edge_count = 0;
+    int min_cost = 0;
+
+    // A Minimum Spanning Tree will contain exactly V-1 edges
+    while (edge_count < V - 1) {
+        int min = 9999; // 9999 represents infinity as per requirements
+        int a = -1, b = -1;
+
+        // Find the lowest weight edge that does not form a cycle
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                // Find root component of vertex i
+                int u = i;
+                while (parent[u] != u) {
+                    u = parent[u];
+                }
+                
+                // Find root component of vertex j
+                int v = j;
+                while (parent[v] != v) {
+                    v = parent[v];
+                }
+
+                // If they belong to different components and edge weight is smaller
+                if (u != v && cost[i][j] < min) {
+                    min = cost[i][j];
+                    a = i;
+                    b = j;
+                }
+            }
+        }
+
+        // If no edge is found under 9999, the graph is not fully connected
+        if (a == -1) {
+            break;
+        }
+
+        // Union: Link component v under component u
+        int u = a;
+        while (parent[u] != u) u = parent[u];
+        int v = b;
+        while (parent[v] != v) v = parent[v];
+        parent[v] = u;
+
+        // Print the selected edge exactly in the requested format
+        printf("Edge %d:(%d, %d) cost:%d\n", edge_count, a, b, min);
+        min_cost += min;
+        edge_count++;
+    }
+
+    // Print the final total minimum cost
+    printf("Minimum cost= %d\n", min_cost);
+}
+
+
+int main() {
+    int V;
+    printf("No of vertices: ");
+    scanf("%d", &V);
+
+    int **cost = (int **)malloc(V * sizeof(int *));
+    for (int i = 0; i < V; i++)
+        cost[i] = (int *)malloc(V * sizeof(int));
+
+    printf("Adjacency matrix:\n");
+    for (int i = 0; i < V; i++)
+        for (int j = 0; j < V; j++)
+            scanf("%d", &cost[i][j]);
+
+    kruskalMST(cost, V);
+
+    for (int i = 0; i < V; i++)
+        free(cost[i]);
+    free(cost);
+
+    return 0;
+}
